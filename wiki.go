@@ -32,9 +32,22 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "<h1>%s</h1><div>%s</div>", title, page.Body)
 }
 
+func editHandler(writer http.ResponseWriter, request *http.Request) {
+	title := request.URL.Path[len("/view/"):]
+	page, error := loadPage(title)
+	if error != nil {
+		page = &Page{Title: title}
+	}
+
+	fmt.Fprintf(writer, "<h1>Editing %s</h1>"+
+		"<form action=\"/save/%s\" method=\"POST\">"+
+		"<textarea name=\"body\">%s</textarea><br>"+
+		"<input type=\"submit\" value=\"Save\">"+
+		"</form>", title, title, page.Body)
+}
+
 func main() {
-	page := Page{Title: "test", Body: []byte("This is the test page.")}
-	page.save()
 	http.HandleFunc("/view/", viewHandler)
+	http.HandleFunc("/edit/", editHandler)
 	http.ListenAndServe(":8080", nil)
 }
