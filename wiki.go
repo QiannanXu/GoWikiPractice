@@ -28,21 +28,24 @@ func loadPage(title string) (*Page, error) {
 
 func viewHandler(w http.ResponseWriter, r *http.Request) {
 	title := r.URL.Path[len("/view/"):]
-	page, _ := loadPage(title)
+	page, err := loadPage(title)
 
-	t, _ := template.ParseFiles("view.html")
-	t.Execute(w, page)
+	renderTemplate(err, w, page, "view.html")
 }
 
 func editHandler(writer http.ResponseWriter, request *http.Request) {
 	title := request.URL.Path[len("/view/"):]
-	page, e := loadPage(title)
-	if e != nil {
+	page, err := loadPage(title)
+	if err != nil {
 		page = &Page{Title: title}
 	}
 
-	t, _ := template.ParseFiles("edit.html")
-	t.Execute(writer, page)
+	renderTemplate(err, writer, page, "edit.html")
+}
+
+func renderTemplate(err error, w http.ResponseWriter, page *Page, templateName string) {
+	t, err := template.ParseFiles(templateName)
+	t.Execute(w, page)
 }
 
 func main() {
