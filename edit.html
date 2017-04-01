@@ -1,0 +1,5 @@
+<h1>{{.Title}}</h1>
+<form action="edit" method="post">
+    <textarea name="body" title="body">{{printf "%s" .Body}}</textarea>
+    <button type="submit">Save</button>
+</form>

@@ -2,8 +2,8 @@ package main
 
 import (
 	"io/ioutil"
-	"fmt"
 	"net/http"
+	"html/template"
 )
 
 type Page struct {
@@ -29,21 +29,20 @@ func loadPage(title string) (*Page, error) {
 func viewHandler(w http.ResponseWriter, r *http.Request) {
 	title := r.URL.Path[len("/view/"):]
 	page, _ := loadPage(title)
-	fmt.Fprintf(w, "<h1>%s</h1><div>%s</div>", title, page.Body)
+
+	t, _ := template.ParseFiles("view.html")
+	t.Execute(w, page)
 }
 
 func editHandler(writer http.ResponseWriter, request *http.Request) {
 	title := request.URL.Path[len("/view/"):]
-	page, error := loadPage(title)
-	if error != nil {
+	page, e := loadPage(title)
+	if e != nil {
 		page = &Page{Title: title}
 	}
 
-	fmt.Fprintf(writer, "<h1>Editing %s</h1>"+
-		"<form action=\"/save/%s\" method=\"POST\">"+
-		"<textarea name=\"body\">%s</textarea><br>"+
-		"<input type=\"submit\" value=\"Save\">"+
-		"</form>", title, title, page.Body)
+	t, _ := template.ParseFiles("edit.html")
+	t.Execute(writer, page)
 }
 
 func main() {
